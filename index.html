@@ -6,8 +6,11 @@
   <style>
     body { font-family: Arial, sans-serif; padding: 20px; }
     .question-card { border: 1px solid #ddd; padding: 20px; margin: 15px 0; border-radius: 10px; }
-    .options button { margin: 5px; padding: 10px; cursor: pointer; }
+    .option-label { display: block; margin: 5px 0; cursor: pointer; }
+    .option-label input { margin-right: 10px; }
     img { max-width: 200px; display: block; margin-top: 10px; }
+    .correct { background-color: #c8f7c5; }
+    .wrong { background-color: #f7c5c5; }
   </style>
 </head>
 <body>
@@ -16,37 +19,53 @@
   <div id="quiz-container">Loading questions...</div>
 
   <script>
-        const sheetURL = "https://opensheet.elk.sh/1cw1ld-0iNMG1wzQ9x26UKw3d0DChFQnqafV3JWuARBI/Sheet1"; // Updated to match your Google Sheets link
+    const sheetURL = "https://opensheet.elk.sh/1cw1ld-0iNMG1wzQ9x26UKw3d0DChFQnqafV3JWuARBI/Sheet1";
 
     fetch(sheetURL)
       .then(res => res.json())
       .then(data => {
         const container = document.getElementById("quiz-container");
         container.innerHTML = "";
+
         data.forEach((item, index) => {
           const qCard = document.createElement("div");
           qCard.className = "question-card";
+
+          const questionId = `question-${index}`;
+          const options = ["A", "B", "C", "D"];
+
           qCard.innerHTML = `
             <strong>Q${index + 1}: ${item.Question}</strong><br>
             ${item["Image URL"] ? `<img src="${item["Image URL"]}" alt="Question Image">` : ""}
-            <div class="options">
-              ${["A", "B", "C", "D"].map(opt => `
-                <button onclick="checkAnswer(this, '${opt}', '${item["Correct Answer"]}')">
+            <form id="${questionId}">
+              ${options.map(opt => `
+                <label class="option-label">
+                  <input type="radio" name="q${index}" value="${opt}" onclick="checkAnswer('${questionId}', '${opt}', '${item["Correct Answer"]}')">
                   ${opt}: ${item[`Option ${opt}`]}
-                </button>`).join("")}
-            </div>
+                </label>
+              `).join("")}
+            </form>
           `;
           container.appendChild(qCard);
         });
       });
 
-    function checkAnswer(button, selected, correct) {
-      if (selected === correct) {
-        button.style.backgroundColor = "#c8f7c5";
-      } else {
-        button.style.backgroundColor = "#f7c5c5";
-      }
+    function checkAnswer(questionId, selected, correct) {
+      const form = document.getElementById(questionId);
+      const options = form.querySelectorAll('input');
+
+      options.forEach(input => {
+        input.disabled = true;
+        const label = input.closest("label");
+        if (input.value === correct) {
+          label.classList.add("correct");
+        }
+        if (input.checked && input.value !== correct) {
+          label.classList.add("wrong");
+        }
+      });
     }
   </script>
+
 </body>
 </html>
