@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Interactive Worksheet</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    .question-card { border: 1px solid #ddd; padding: 20px; margin: 15px 0; border-radius: 10px; }
+    .options button { margin: 5px; padding: 10px; cursor: pointer; }
+    img { max-width: 200px; display: block; margin-top: 10px; }
+  </style>
+</head>
+<body>
+
+  <h1>Interactive Worksheet</h1>
+  <div id="quiz-container">Loading questions...</div>
+
+  <script>
+    const sheetURL = "https://docs.google.com/spreadsheets/d/1cw1ld-0iNMG1wzQ9x26UKw3d0DChFQnqafV3JWuARBI/edit?gid=0#gid=0"; // Change this with your own sheet
+
+    fetch(sheetURL)
+      .then(res => res.json())
+      .then(data => {
+        const container = document.getElementById("quiz-container");
+        container.innerHTML = "";
+        data.forEach((item, index) => {
+          const qCard = document.createElement("div");
+          qCard.className = "question-card";
+          qCard.innerHTML = `
+            <strong>Q${index + 1}: ${item.Question}</strong><br>
+            ${item["Image URL"] ? `<img src="${item["Image URL"]}" alt="Question Image">` : ""}
+            <div class="options">
+              ${["A", "B", "C", "D"].map(opt => `
+                <button onclick="checkAnswer(this, '${opt}', '${item["Correct Answer"]}')">
+                  ${opt}: ${item[`Option ${opt}`]}
+                </button>`).join("")}
+            </div>
+          `;
+          container.appendChild(qCard);
+        });
+      });
+
+    function checkAnswer(button, selected, correct) {
+      if (selected === correct) {
+        button.style.backgroundColor = "#c8f7c5";
+      } else {
+        button.style.backgroundColor = "#f7c5c5";
+      }
+    }
+  </script>
+</body>
+</html>
