@@ -1,71 +1,235 @@
 <!DOCTYPE html>
+
 <html lang="en">
+
 <head>
+
   <meta charset="UTF-8">
+
   <title>Interactive Worksheet</title>
+
   <style>
+
     body { font-family: Arial, sans-serif; padding: 20px; }
+
     .question-card { border: 1px solid #ddd; padding: 20px; margin: 15px 0; border-radius: 10px; }
+
     .option-label { display: block; margin: 5px 0; cursor: pointer; }
+
     .option-label input { margin-right: 10px; }
+
     img { max-width: 200px; display: block; margin-top: 10px; }
+
     .correct { background-color: #c8f7c5; }
+
     .wrong { background-color: #f7c5c5; }
+
+    #result { font-size: 1.2em; font-weight: bold; margin-top: 20px; }
+
+    #submit-btn { padding: 8px 18px; border-radius: 5px; font-size: 1em; margin-top: 15px; cursor: pointer; }
+
   </style>
+
 </head>
+
 <body>
 
+
+
   <h1>Interactive Worksheet</h1>
+
   <div id="quiz-container">Loading questions...</div>
 
+  <button id="submit-btn" style="display:none;">Show Result</button>
+
+  <div id="result"></div>
+
+
+
   <script>
+
     const sheetURL = "https://opensheet.elk.sh/1cw1ld-0iNMG1wzQ9x26UKw3d0DChFQnqafV3JWuARBI/Sheet1";
 
+    let quizData = [];
+
+    let totalQuestions = 0;
+
+
+
     fetch(sheetURL)
+
       .then(res => res.json())
+
       .then(data => {
+
+        quizData = data;
+
+        totalQuestions = data.length;
+
         const container = document.getElementById("quiz-container");
+
         container.innerHTML = "";
 
+
+
         data.forEach((item, index) => {
+
           const qCard = document.createElement("div");
+
           qCard.className = "question-card";
 
+
+
           const questionId = `question-${index}`;
+
           const options = ["A", "B", "C", "D"];
 
+
+
           qCard.innerHTML = `
+
             <strong>Q${index + 1}: ${item.Question}</strong><br>
+
             ${item["Image URL"] ? `<img src="${item["Image URL"]}" alt="Question Image">` : ""}
+
             <form id="${questionId}">
+
               ${options.map(opt => `
+
                 <label class="option-label">
-                  <input type="radio" name="q${index}" value="${opt}" onclick="checkAnswer('${questionId}', '${opt}', '${item["Correct Answer"]}')">
+
+                  <input type="radio" name="q${index}" value="${opt}" onclick="markAnswered(${index})">
+
                   ${opt}: ${item[`Option ${opt}`]}
+
                 </label>
+
               `).join("")}
+
             </form>
+
           `;
+
           container.appendChild(qCard);
+
         });
+
+
+
+        // Show submit button
+
+        document.getElementById("submit-btn").style.display = "inline-block";
+
       });
 
-    function checkAnswer(questionId, selected, correct) {
-      const form = document.getElementById(questionId);
-      const options = form.querySelectorAll('input');
 
-      options.forEach(input => {
-        input.disabled = true;
-        const label = input.closest("label");
-        if (input.value === correct) {
-          label.classList.add("correct");
+
+    // Track which questions have been answered
+
+    let answeredQuestions = {};
+
+
+
+    // Make markAnswered global
+
+    window.markAnswered = function(index) {
+
+      answeredQuestions[index] = true;
+
+    };
+
+
+
+    // Show result when submit button is clicked
+
+    document.getElementById("submit-btn").onclick = function() {
+
+      let score = 0;
+
+      let attempted = 0;
+
+
+
+      quizData.forEach((item, index) => {
+
+        const form = document.getElementById(`question-${index}`);
+
+        if (!form) return;
+
+        const selected = form.querySelector('input[type="radio"]:checked');
+
+        const options = form.querySelectorAll('input');
+
+
+
+        // Mark correct and wrong answers (similar to checkAnswer)
+
+        options.forEach(input => {
+
+          input.disabled = true;
+
+          const label = input.closest("label");
+
+          label.classList.remove("correct", "wrong");
+
+          if (input.value === item["Correct Answer"]) {
+
+            label.classList.add("correct");
+
+          }
+
+          if (input.checked && input.value !== item["Correct Answer"]) {
+
+            label.classList.add("wrong");
+
+          }
+
+        });
+
+
+
+        if (selected) {
+
+          attempted++;
+
+          if (selected.value === item["Correct Answer"]) {
+
+            score++;
+
+          }
+
         }
-        if (input.checked && input.value !== correct) {
-          label.classList.add("wrong");
-        }
+
       });
-    }
+
+
+
+      // Show score/result
+
+      let resultText = `You scored ${score} out of ${totalQuestions}.`;
+
+      if (attempted < totalQuestions) {
+
+        resultText += ` <br> (You attempted ${attempted} out of ${totalQuestions} questions.)`;
+
+      }
+
+      document.getElementById("result").innerHTML = resultText;
+
+
+
+      // Disable submit button after submit
+
+      document.getElementById("submit-btn").disabled = true;
+
+      document.getElementById("submit-btn").innerText = "Result Submitted";
+
+    };
+
   </script>
 
+
+
 </body>
+
 </html>
