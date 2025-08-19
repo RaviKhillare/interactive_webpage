@@ -4,118 +4,261 @@
   <meta charset="UTF-8">
   <title>Interactive Worksheet</title>
   <style>
-    body { font-family: Arial, sans-serif; padding: 20px; }
-    .question-card { border: 1px solid #ddd; padding: 20px; margin: 15px 0; border-radius: 10px; }
-    .option-label { display: block; margin: 5px 0; cursor: pointer; }
-    .option-label input { margin-right: 10px; }
-    img { max-width: 200px; display: block; margin-top: 10px; }
-    .correct { background-color: #c8f7c5; }
-    .wrong { background-color: #f7c5c5; }
-    #result { font-size: 1.2em; font-weight: bold; margin-top: 20px; }
-    #submit-btn { padding: 8px 18px; border-radius: 5px; font-size: 1em; margin-top: 15px; cursor: pointer; }
-    #school-name { font-size: 1.5em; font-weight: bold; margin-bottom: 15px; }
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: linear-gradient(120deg, #f8fafc 0%, #e0e7ff 100%);
+      padding: 40px 0;
+      margin: 0;
+      min-height: 100vh;
+    }
+    h1 {
+      text-align: center;
+      color: #3b3b5c;
+      letter-spacing: 2px;
+      margin-bottom: 30px;
+      font-size: 2.5rem;
+      font-weight: 700;
+      text-shadow: 0 2px 8px #e0e7ff;
+    }
+    #quiz-container {
+      max-width: 700px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 18px;
+      box-shadow: 0 6px 32px 0 rgba(60,72,100,0.12);
+      padding: 32px 24px;
+    }
+    .question-card {
+      border: none;
+      background: #f4f7fe;
+      padding: 28px 20px 20px 20px;
+      margin: 24px 0;
+      border-radius: 14px;
+      box-shadow: 0 2px 12px 0 rgba(60,72,100,0.06);
+      transition: box-shadow 0.2s;
+    }
+    .question-card:hover {
+      box-shadow: 0 6px 24px 0 rgba(60,72,100,0.13);
+    }
+    .question-card strong {
+      font-size: 1.15rem;
+      color: #2d3a4b;
+      display: block;
+      margin-bottom: 12px;
+    }
+    .options {
+      margin-top: 12px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .options button {
+      background: #e0e7ff;
+      border: none;
+      border-radius: 8px;
+      padding: 12px 24px;
+      font-size: 1rem;
+      color: #3b3b5c;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+      box-shadow: 0 1px 4px 0 rgba(60,72,100,0.08);
+    }
+    .options button:hover {
+      background: #6366f1;
+      color: #fff;
+    }
+    img {
+      max-width: 220px;
+      display: block;
+      margin: 18px auto 0 auto;
+      border-radius: 10px;
+      box-shadow: 0 2px 12px 0 rgba(60,72,100,0.10);
+      border: 2px solid #e0e7ff;
+    }
+    @media (max-width: 800px) {
+      #quiz-container {
+        padding: 18px 4vw;
+      }
+      .question-card {
+        padding: 18px 8px 12px 8px;
+      }
+      img {
+        max-width: 100%;
+      }
+    }
   </style>
 </head>
 <body>
 
-  <div id="school-name">Loading School...</div>
   <h1>Interactive Worksheet</h1>
+  <!-- Admin Login Modal -->
+  <div id="admin-login-modal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(60,72,100,0.18);z-index:1000;">
+    <div style="max-width:350px;margin:10vh auto;background:#fff;border-radius:16px;box-shadow:0 6px 32px 0 rgba(60,72,100,0.18);padding:32px 24px;position:relative;">
+      <h2 style="text-align:center;color:#4f46e5;margin-bottom:18px;">Admin Login</h2>
+      <form id="admin-login-form">
+        <div style="margin-bottom:16px;">
+          <label>User ID</label>
+          <input name="userid" required type="text" style="width:100%;border-radius:8px;border:1px solid #e0e7ff;padding:8px;font-size:1rem;">
+        </div>
+        <div style="margin-bottom:18px;">
+          <label>Password</label>
+          <input name="password" required type="password" style="width:100%;border-radius:8px;border:1px solid #e0e7ff;padding:8px;font-size:1rem;">
+        </div>
+        <button type="submit" style="background:#6366f1;color:#fff;border:none;border-radius:8px;padding:10px 28px;font-size:1rem;font-weight:600;cursor:pointer;box-shadow:0 2px 8px 0 rgba(60,72,100,0.10);transition:background 0.2s;width:100%;">Login</button>
+        <div id="login-error" style="display:none;color:#dc2626;text-align:center;margin-top:12px;font-weight:500;">Invalid credentials!</div>
+        <div style="margin-top:16px;font-size:0.95rem;color:#64748b;text-align:center;">
+          Demo ID: <b>demo</b> &nbsp;|&nbsp; Password: <b>demo123</b>
+        </div>
+      </form>
+    </div>
+  </div>
+  <!-- Admin Panel -->
+  <div id="admin-panel" style="max-width:700px;margin:32px auto 0 auto;display:none;">
+    <div style="background:#fff;border-radius:18px;box-shadow:0 6px 32px 0 rgba(60,72,100,0.12);padding:32px 24px;">
+      <h2 style="text-align:center;color:#4f46e5;margin-bottom:24px;">Admin Panel: Create Question Paper</h2>
+      <form id="question-form">
+        <div style="margin-bottom:18px;">
+          <label><strong>Question</strong></label>
+          <textarea name="question" required rows="2" style="width:100%;border-radius:8px;border:1px solid #e0e7ff;padding:10px;font-size:1rem;"></textarea>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:18px;">
+          <div>
+            <label>Option A</label>
+            <input name="optionA" required type="text" style="width:100%;border-radius:8px;border:1px solid #e0e7ff;padding:8px;font-size:1rem;">
+          </div>
+          <div>
+            <label>Option B</label>
+            <input name="optionB" required type="text" style="width:100%;border-radius:8px;border:1px solid #e0e7ff;padding:8px;font-size:1rem;">
+          </div>
+          <div>
+            <label>Option C</label>
+            <input name="optionC" required type="text" style="width:100%;border-radius:8px;border:1px solid #e0e7ff;padding:8px;font-size:1rem;">
+          </div>
+          <div>
+            <label>Option D</label>
+            <input name="optionD" required type="text" style="width:100%;border-radius:8px;border:1px solid #e0e7ff;padding:8px;font-size:1rem;">
+          </div>
+        </div>
+        <div style="margin-bottom:18px;">
+          <label><strong>Correct Answer</strong></label>
+          <select name="correct" required style="width:100%;border-radius:8px;border:1px solid #e0e7ff;padding:8px;font-size:1rem;">
+            <option value="">Select correct option</option>
+            <option value="A">A</option>
+            <option value="B">B</option>
+            <option value="C">C</option>
+            <option value="D">D</option>
+          </select>
+        </div>
+        <button type="submit" style="background:#6366f1;color:#fff;border:none;border-radius:8px;padding:12px 32px;font-size:1.1rem;font-weight:600;cursor:pointer;box-shadow:0 2px 8px 0 rgba(60,72,100,0.10);transition:background 0.2s;">Add Question</button>
+      </form>
+      <div id="admin-success" style="display:none;margin-top:18px;color:#16a34a;text-align:center;font-weight:600;">Question added locally! (Demo only)</div>
+    </div>
+  </div>
+  <div style="text-align:center;margin-bottom:24px;">
+    <button id="toggle-admin" style="background:#4f46e5;color:#fff;border:none;border-radius:8px;padding:10px 28px;font-size:1rem;font-weight:600;cursor:pointer;box-shadow:0 2px 8px 0 rgba(60,72,100,0.10);transition:background 0.2s;">Admin Panel</button>
+  </div>
   <div id="quiz-container">Loading questions...</div>
-  <button id="submit-btn" style="display:none;">Show Result</button>
-  <div id="result"></div>
 
   <script>
-    const sheetURL = "https://opensheet.elk.sh/1cw1ld-0iNMG1wzQ9x26UKw3d0DChFQnqafV3JWuARBI/Sheet1";
-    let quizData = [];
-    let totalQuestions = 0;
+    const sheetURL = "https://opensheet.elk.sh/1cw1ld-0iNMG1wzQ9x26UKw3d0DChFQnqafV3JWuARBI/Sheet1"; // Updated to match your Google Sheets link
+
+    let localQuestions = [];
+
+    function renderQuestions(questions) {
+      const container = document.getElementById("quiz-container");
+      container.innerHTML = "";
+      questions.forEach((item, index) => {
+        const qCard = document.createElement("div");
+        qCard.className = "question-card";
+        qCard.innerHTML = `
+          <strong>Q${index + 1}: ${item.Question}</strong><br>
+          <div class="options">
+            ${["A", "B", "C", "D"].map(opt => `
+              <button onclick="checkAnswer(this, '${opt}', '${item["Correct Answer"]}')">
+                ${opt}: ${item[`Option ${opt}`]}
+              </button>`).join("")}
+          </div>
+        `;
+        container.appendChild(qCard);
+      });
+    }
 
     fetch(sheetURL)
       .then(res => res.json())
       .then(data => {
-        quizData = data;
-        totalQuestions = data.length;
-
-        // Show school name from the first row, SchoolName column
-        if (data.length && data[0].SchoolName) {
-          document.getElementById("school-name").innerText = data[0].SchoolName;
-        } else {
-          document.getElementById("school-name").innerText = "";
-        }
-
-        const container = document.getElementById("quiz-container");
-        container.innerHTML = "";
-
-        data.forEach((item, index) => {
-          const qCard = document.createElement("div");
-          qCard.className = "question-card";
-
-          const questionId = `question-${index}`;
-          const options = ["A", "B", "C", "D"];
-
-          qCard.innerHTML = `
-            <strong>Q${index + 1}: ${item.Question}</strong><br>
-            ${item["Image URL"] ? `<img src="${item["Image URL"]}" alt="Question Image">` : ""}
-            <form id="${questionId}">
-              ${options.map(opt => `
-                <label class="option-label">
-                  <input type="radio" name="q${index}" value="${opt}" onclick="markAnswered(${index})">
-                  ${opt}: ${item[`Option ${opt}`]}
-                </label>
-              `).join("")}
-            </form>
-          `;
-          container.appendChild(qCard);
-        });
-
-        document.getElementById("submit-btn").style.display = "inline-block";
+        localQuestions = data;
+        renderQuestions(localQuestions);
       });
 
-    // Track which questions have been answered
-    let answeredQuestions = {};
+    function checkAnswer(button, selected, correct) {
+      if (selected === correct) {
+        button.style.backgroundColor = "#c8f7c5";
+      } else {
+        button.style.backgroundColor = "#f7c5c5";
+      }
+    }
 
-    window.markAnswered = function(index) {
-      answeredQuestions[index] = true;
+    // Admin Panel Authentication
+    const ADMIN_CREDENTIALS = [
+      { id: "demo", password: "demo123" }
+      // Add more admin users here if needed
+    ];
+
+    let isAdmin = false;
+
+    document.getElementById("toggle-admin").onclick = function() {
+      if (!isAdmin) {
+        document.getElementById("admin-login-modal").style.display = "block";
+      } else {
+        const panel = document.getElementById("admin-panel");
+        panel.style.display = panel.style.display === "none" ? "block" : "none";
+      }
     };
 
-    document.getElementById("submit-btn").onclick = function() {
-      let score = 0;
-      let attempted = 0;
-
-      quizData.forEach((item, index) => {
-        const form = document.getElementById(`question-${index}`);
-        if (!form) return;
-        const selected = form.querySelector('input[type="radio"]:checked');
-        const options = form.querySelectorAll('input');
-
-        options.forEach(input => {
-          input.disabled = true;
-          const label = input.closest("label");
-          label.classList.remove("correct", "wrong");
-          if (input.value === item["Correct Answer"]) {
-            label.classList.add("correct");
-          }
-          if (input.checked && input.value !== item["Correct Answer"]) {
-            label.classList.add("wrong");
-          }
-        });
-
-        if (selected) {
-          attempted++;
-          if (selected.value === item["Correct Answer"]) {
-            score++;
-          }
-        }
-      });
-
-      let resultText = `You scored ${score} out of ${totalQuestions}.`;
-      if (attempted < totalQuestions) {
-        resultText += ` <br> (You attempted ${attempted} out of ${totalQuestions} questions.)`;
+    document.getElementById("admin-login-form").onsubmit = function(e) {
+      e.preventDefault();
+      const form = e.target;
+      const user = form.userid.value.trim();
+      const pass = form.password.value;
+      const found = ADMIN_CREDENTIALS.find(
+        cred => cred.id === user && cred.password === pass
+      );
+      if (found) {
+        isAdmin = true;
+        document.getElementById("admin-login-modal").style.display = "none";
+        document.getElementById("admin-panel").style.display = "block";
+        form.reset();
+        document.getElementById("login-error").style.display = "none";
+      } else {
+        document.getElementById("login-error").style.display = "block";
       }
-      document.getElementById("result").innerHTML = resultText;
-      document.getElementById("submit-btn").disabled = true;
-      document.getElementById("submit-btn").innerText = "Result Submitted";
+    };
+
+    // Hide login modal when clicking outside the box
+    document.getElementById("admin-login-modal").onclick = function(e) {
+      if (e.target === this) this.style.display = "none";
+    };
+
+    document.getElementById("question-form").onsubmit = function(e) {
+      e.preventDefault();
+      const form = e.target;
+      const newQ = {
+        "Question": form.question.value,
+        "Option A": form.optionA.value,
+        "Option B": form.optionB.value,
+        "Option C": form.optionC.value,
+        "Option D": form.optionD.value,
+        "Correct Answer": form.correct.value
+      };
+      localQuestions.push(newQ);
+      renderQuestions(localQuestions);
+      document.getElementById("admin-success").style.display = "block";
+      setTimeout(() => {
+        document.getElementById("admin-success").style.display = "none";
+      }, 2000);
+      form.reset();
     };
   </script>
-
 </body>
 </html>
