@@ -90,80 +90,10 @@
   </style>
 </head>
 <body>
-
   <h1>Interactive Worksheet</h1>
-  <!-- Admin Login Modal -->
-  <div id="admin-login-modal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(60,72,100,0.18);z-index:1000;">
-    <div style="max-width:350px;margin:10vh auto;background:#fff;border-radius:16px;box-shadow:0 6px 32px 0 rgba(60,72,100,0.18);padding:32px 24px;position:relative;">
-      <h2 style="text-align:center;color:#4f46e5;margin-bottom:18px;">Admin Login</h2>
-      <form id="admin-login-form">
-        <div style="margin-bottom:16px;">
-          <label>User ID</label>
-          <input name="userid" required type="text" style="width:100%;border-radius:8px;border:1px solid #e0e7ff;padding:8px;font-size:1rem;">
-        </div>
-        <div style="margin-bottom:18px;">
-          <label>Password</label>
-          <input name="password" required type="password" style="width:100%;border-radius:8px;border:1px solid #e0e7ff;padding:8px;font-size:1rem;">
-        </div>
-        <button type="submit" style="background:#6366f1;color:#fff;border:none;border-radius:8px;padding:10px 28px;font-size:1rem;font-weight:600;cursor:pointer;box-shadow:0 2px 8px 0 rgba(60,72,100,0.10);transition:background 0.2s;width:100%;">Login</button>
-        <div id="login-error" style="display:none;color:#dc2626;text-align:center;margin-top:12px;font-weight:500;">Invalid credentials!</div>
-        <div style="margin-top:16px;font-size:0.95rem;color:#64748b;text-align:center;">
-          Demo ID: <b>demo</b> &nbsp;|&nbsp; Password: <b>demo123</b>
-        </div>
-      </form>
-    </div>
-  </div>
-  <!-- Admin Panel -->
-  <div id="admin-panel" style="max-width:700px;margin:32px auto 0 auto;display:none;">
-    <div style="background:#fff;border-radius:18px;box-shadow:0 6px 32px 0 rgba(60,72,100,0.12);padding:32px 24px;">
-      <h2 style="text-align:center;color:#4f46e5;margin-bottom:24px;">Admin Panel: Create Question Paper</h2>
-      <form id="question-form">
-        <div style="margin-bottom:18px;">
-          <label><strong>Question</strong></label>
-          <textarea name="question" required rows="2" style="width:100%;border-radius:8px;border:1px solid #e0e7ff;padding:10px;font-size:1rem;"></textarea>
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:18px;">
-          <div>
-            <label>Option A</label>
-            <input name="optionA" required type="text" style="width:100%;border-radius:8px;border:1px solid #e0e7ff;padding:8px;font-size:1rem;">
-          </div>
-          <div>
-            <label>Option B</label>
-            <input name="optionB" required type="text" style="width:100%;border-radius:8px;border:1px solid #e0e7ff;padding:8px;font-size:1rem;">
-          </div>
-          <div>
-            <label>Option C</label>
-            <input name="optionC" required type="text" style="width:100%;border-radius:8px;border:1px solid #e0e7ff;padding:8px;font-size:1rem;">
-          </div>
-          <div>
-            <label>Option D</label>
-            <input name="optionD" required type="text" style="width:100%;border-radius:8px;border:1px solid #e0e7ff;padding:8px;font-size:1rem;">
-          </div>
-        </div>
-        <div style="margin-bottom:18px;">
-          <label><strong>Correct Answer</strong></label>
-          <select name="correct" required style="width:100%;border-radius:8px;border:1px solid #e0e7ff;padding:8px;font-size:1rem;">
-            <option value="">Select correct option</option>
-            <option value="A">A</option>
-            <option value="B">B</option>
-            <option value="C">C</option>
-            <option value="D">D</option>
-          </select>
-        </div>
-        <button type="submit" style="background:#6366f1;color:#fff;border:none;border-radius:8px;padding:12px 32px;font-size:1.1rem;font-weight:600;cursor:pointer;box-shadow:0 2px 8px 0 rgba(60,72,100,0.10);transition:background 0.2s;">Add Question</button>
-      </form>
-      <div id="admin-success" style="display:none;margin-top:18px;color:#16a34a;text-align:center;font-weight:600;">Question added locally! (Demo only)</div>
-    </div>
-  </div>
-  <div style="text-align:center;margin-bottom:24px;">
-    <button id="toggle-admin" style="background:#4f46e5;color:#fff;border:none;border-radius:8px;padding:10px 28px;font-size:1rem;font-weight:600;cursor:pointer;box-shadow:0 2px 8px 0 rgba(60,72,100,0.10);transition:background 0.2s;">Admin Panel</button>
-  </div>
   <div id="quiz-container">Loading questions...</div>
-
   <script>
-    const sheetURL = "https://opensheet.elk.sh/1cw1ld-0iNMG1wzQ9x26UKw3d0DChFQnqafV3JWuARBI/Sheet1"; // Updated to match your Google Sheets link
-
-    let localQuestions = [];
+    const sheetURL = "https://opensheet.elk.sh/1cw1ld-0iNMG1wzQ9x26UKw3d0DChFQnqafV3JWuARBI/Sheet1";
 
     function renderQuestions(questions) {
       const container = document.getElementById("quiz-container");
@@ -187,88 +117,16 @@
     fetch(sheetURL)
       .then(res => res.json())
       .then(data => {
-        localQuestions = data;
-        renderQuestions(localQuestions);
+        renderQuestions(data);
       });
 
-    function checkAnswer(button, selected, correct) {
+    window.checkAnswer = function(button, selected, correct) {
       if (selected === correct) {
         button.style.backgroundColor = "#c8f7c5";
       } else {
         button.style.backgroundColor = "#f7c5c5";
       }
     }
-
-    // Admin Panel Authentication
-    const ADMIN_CREDENTIALS = [
-      { id: "demo", password: "demo123" }
-      // Add more admin users here if needed
-    ];
-
-    let isAdmin = false;
-
-    document.getElementById("toggle-admin").onclick = function() {
-      if (!isAdmin) {
-        document.getElementById("admin-login-modal").style.display = "block";
-      } else {
-        const panel = document.getElementById("admin-panel");
-        panel.style.display = panel.style.display === "none" ? "block" : "none";
-      }
-    };
-
-    document.getElementById("admin-login-form").onsubmit = function(e) {
-      e.preventDefault();
-      const form = e.target;
-      const user = form.userid.value.trim();
-      const pass = form.password.value;
-      const found = ADMIN_CREDENTIALS.find(
-        cred => cred.id === user && cred.password === pass
-      );
-      if (found) {
-        isAdmin = true;
-        document.getElementById("admin-login-modal").style.display = "none";
-        document.getElementById("admin-panel").style.display = "block";
-        form.reset();
-        document.getElementById("login-error").style.display = "none";
-      } else {
-        document.getElementById("login-error").style.display = "block";
-      }
-    };
-
-    // Hide login modal when clicking outside the box
-    document.getElementById("admin-login-modal").onclick = function(e) {
-      if (e.target === this) this.style.display = "none";
-    };
-
-    document.getElementById("question-form").onsubmit = function(e) {
-      e.preventDefault();
-      const form = e.target;
-      const newQ = {
-        "Question": form.question.value,
-        "Option A": form.optionA.value,
-        "Option B": form.optionB.value,
-        "Option C": form.optionC.value,
-        "Option D": form.optionD.value,
-        "Correct Answer": form.correct.value
-      };
-      localQuestions.push(newQ);
-      renderQuestions(localQuestions);
-      fetch('YOUR_WEB_APP_URL', {
-        method: 'POST',
-        body: JSON.stringify(newQ),
-        headers: { 'Content-Type': 'application/json' }
-      })
-      .then(res => res.json())
-      .then(response => {
-        if (response.result === 'success') {
-          document.getElementById("admin-success").style.display = "block";
-          setTimeout(() => {
-            document.getElementById("admin-success").style.display = "none";
-          }, 2000);
-          form.reset();
-        }
-      });
-    };
   </script>
 </body>
 </html>
