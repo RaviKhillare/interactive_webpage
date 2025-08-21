@@ -253,11 +253,21 @@
       };
       localQuestions.push(newQ);
       renderQuestions(localQuestions);
-      document.getElementById("admin-success").style.display = "block";
-      setTimeout(() => {
-        document.getElementById("admin-success").style.display = "none";
-      }, 2000);
-      form.reset();
+      fetch('YOUR_WEB_APP_URL', {
+        method: 'POST',
+        body: JSON.stringify(newQ),
+        headers: { 'Content-Type': 'application/json' }
+      })
+      .then(res => res.json())
+      .then(response => {
+        if (response.result === 'success') {
+          document.getElementById("admin-success").style.display = "block";
+          setTimeout(() => {
+            document.getElementById("admin-success").style.display = "none";
+          }, 2000);
+          form.reset();
+        }
+      });
     };
   </script>
 </body>
