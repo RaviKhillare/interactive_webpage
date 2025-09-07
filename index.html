@@ -11,6 +11,29 @@
       margin: 0;
       min-height: 100vh;
     }
+    .title-section {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+      margin-bottom: 18px;
+    }
+    .school-logo {
+      width: 72px;
+      height: 72px;
+      object-fit: contain;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px 0 rgba(60,72,100,0.10);
+      border: 2px solid #e0e7ff;
+      background: #fff;
+    }
+    .school-name {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #3b3b5c;
+      letter-spacing: 1px;
+      text-shadow: 0 2px 8px #e0e7ff;
+    }
     h1 {
       text-align: center;
       color: #3b3b5c;
@@ -18,7 +41,7 @@
       margin-bottom: 30px;
       font-size: 2.5rem;
       font-weight: 700;
-      text-shadow: 0 2px 8px #e0e7ff;
+      text-shadow: 0 2px 8px #e0e7ff; to 
     }
     #quiz-container {
       max-width: 700px;
@@ -83,13 +106,24 @@
       .question-card {
         padding: 18px 8px 12px 8px;
       }
+      img.school-logo {
+        width: 48px;
+        height: 48px;
+      }
       img {
         max-width: 100%;
+      }
+      .school-name {
+        font-size: 1.3rem;
       }
     }
   </style>
 </head>
 <body>
+  <div class="title-section">
+    <img src="school-logo.png" alt="School Logo" class="school-logo" />
+    <span class="school-name">Pioneer International CBSE School Bhokardan</span>
+  </div>
   <h1>Interactive Worksheet</h1>
   <div id="quiz-container">Loading questions...</div>
   <script>
